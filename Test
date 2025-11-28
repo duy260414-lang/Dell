@@ -1,0 +1,51 @@
+ const player = game.Players.LocalPlayer;
+const userInputService = game.GetService("UserInputService");
+
+// ESP Function
+function addESP(obj, color) {
+    let highlight = new Instance("Highlight", obj);
+    highlight.FillColor = color;
+    highlight.FillTransparency = 0.5;
+    highlight.OutlineTransparency = 0.2;
+}
+
+// Hiển thị các đảo
+workspace.GetChildren().forEach(island => {
+    if (island.IsA("Model") && island.Name.includes("Island")) {
+        addESP(island, new Color3(0, 255, 0)); // Màu xanh lá cho đảo
+    }
+});
+
+// Hiển thị trái ác quỷ đã spawn
+workspace.GetChildren().forEach(fruit => {
+    if (fruit.IsA("Tool") && fruit.Name.includes("Fruit")) {
+        addESP(fruit, new Color3(255, 165, 0)); // Màu cam cho trái ác quỷ
+    }
+});
+
+// Auto TP đến đảo gần nhất
+function teleportToIsland() {
+    let closestIsland = null;
+    let minDist = Infinity;
+    
+    workspace.GetChildren().forEach(island => {
+        if (island.IsA("Model") && island.Name.includes("Island")) {
+            let dist = player.Character.HumanoidRootPart.Position.sub(island.PrimaryPart.Position).Magnitude;
+            if (dist < minDist) {
+                minDist = dist;
+                closestIsland = island;
+            }
+        }
+    });
+    
+    if (closestIsland) {
+        player.Character.HumanoidRootPart.CFrame = closestIsland.PrimaryPart.CFrame.add(new Vector3(0, 10, 0));
+    }
+}
+
+// Gán phím tắt (bấm "T" để dịch chuyển đến đảo gần nhất)
+userInputService.InputBegan.Connect((input) => {
+    if (input.KeyCode === Enum.KeyCode.T) {
+        teleportToIsland();
+    }
+});
